@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const cors = require("cors");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const { MongoClient } = require("mongodb");
 
@@ -15,11 +16,13 @@ const client = new MongoClient(uri);
 async function run() {
   try {
     const database = client.db("organicdb");
-    const collection = database.collection("products");
-    app.post("/addProduct", (req, res) => {
+    const collection = database.collection("product");
+    app.post("/addProduct", async (req, res) => {
       const product = req.body;
-      console.log(product)
-
+      await collection.insertOne( product ).then((reasult) => {
+        console.log("data aded successfully");
+        res.send("success");
+      });
     });
 
     console.log("db is connect");
