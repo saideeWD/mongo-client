@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const { MongoClient } = require("mongodb");
+const { MongoClient, Collection } = require("mongodb");
 
 // Replace the uri string with your connection string.
 const uri =
@@ -17,9 +17,15 @@ async function run() {
   try {
     const database = client.db("organicdb");
     const collection = database.collection("product");
+    app.get("/products", async(req, res) => {
+      const cursor = collection.find();
+      const results = await cursor.toArray();
+      res.send(results)
+    });
+
     app.post("/addProduct", async (req, res) => {
       const product = req.body;
-      await collection.insertOne( product ).then((reasult) => {
+      await collection.insertOne(product).then((reasult) => {
         console.log("data aded successfully");
         res.send("success");
       });
