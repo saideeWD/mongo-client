@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const {ObjectId} = require('mongodb');
+const { ObjectId } = require("mongodb");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -28,31 +28,33 @@ async function run() {
       const product = req.body;
       await collection.insertOne(product).then((reasult) => {
         console.log("data aded successfully");
-        res.send("success");
+        res.redirect("/");
       });
     });
-    app.get('/product/:id', async (req, res) => {
-  
-      const data = collection.find({ _id: new ObjectId(req.params.id)});
+    app.get("/product/:id", async (req, res) => {
+      const data = collection.find({ _id: new ObjectId(req.params.id) });
       const results = await data.toArray();
       res.send(results[0]);
-
-    })
-    app.patch('/update/:id', async (req, res) => {
-      console.log(req.body.price)
-      collection.updateOne({ _id: new ObjectId(req.params.id)},
-      {
-        $set:{price:req.body.price,quantity:req.body.quantity}
-      })
-      .then(result=>{
-        console.log(result)
-      })
-    })
+    });
+    app.patch("/update/:id", async (req, res) => {
+      console.log(req.body.price);
+      collection
+        .updateOne(
+          { _id: new ObjectId(req.params.id) },
+          {
+            $set: { price: req.body.price, quantity: req.body.quantity },
+          }
+        )
+        .then((result) => {
+          res.send(result.matchedCount > 0);
+        });
+    });
     app.delete("/delete/:id", async (req, res) => {
-      await collection.deleteOne({ _id: new ObjectId(req.params.id)})
-      .then((result) => {
-        console.log(result);
-      });
+      await collection
+        .deleteOne({ _id: new ObjectId(req.params.id) })
+        .then((result) => {
+          res.send(result.deletedCount > 0);
+        });
     });
 
     console.log("db is connect");
